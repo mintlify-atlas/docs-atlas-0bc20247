@@ -1,0 +1,100 @@
+---
+title: "StatusPanel component"
+description: "StatusPanel cycles through a simulated file list with a green progress bar, advancing every 500–2000ms via Tkinter's after() scheduler on the main thread."
+---
+
+`StatusPanel` is a CustomTkinter widget that simulates an animated file processing status display. It cycles through a list of file paths at random intervals, updating a counter label, a "current file" label, and a green progress bar. All animation is driven by Tkinter's `after()` scheduler on the main thread — no background threads are used.
+
+## Constructor
+
+```python
+StatusPanel(master)
+```
+
+<ParamField path="master" type="ctk.CTkFrame | ctk.CTk" required>
+  The parent widget in which this frame is placed. Passed directly to `ctk.CTkFrame.__init__`.
+</ParamField>
+
+## Public methods
+
+### `update_status()`
+
+Advances the simulation by one step: increments the file counter, updates the current file label, and sets the progress bar value. Reschedules itself after a random delay of 500–2000 milliseconds using `self.after()`.
+
+```python
+# Called automatically on init — you can also trigger it manually
+panel.update_status()
+```
+
+When all files have been processed, the `current_file` label updates to "Encryption Complete" in green (`#00ff00`) and no further scheduling occurs.
+
+## Internal widgets
+
+| Attribute | Type | Description |
+|---|---|---|
+| `header` | `ctk.CTkLabel` | "ENCRYPTION STATUS" header in green at the top |
+| `encrypted_label` | `ctk.CTkLabel` | Displays the running count: "Files Encrypted: N" |
+| `current_file` | `ctk.CTkLabel` | Displays the path of the file currently being "processed" |
+| `progress` | `ctk.CTkProgressBar` | Green progress bar starting at 0 and filling to 1.0 |
+
+## Default file list
+
+The component uses a hardcoded list of simulated file paths defined in `_simulate_encryption`:
+
+```python src/components/status_panel.py
+self.files = [
+    "C:/Users/Documents/important.pdf",
+    "C:/Users/Pictures/family.jpg",
+    "C:/Users/Desktop/work_report.docx",
+    "C:/Users/Downloads/backup.zip",
+    "C:/Program Files/data.db"
+]
+```
+
+<Note>
+  These are simulated paths only. No real files are accessed or modified.
+</Note>
+
+## Customizing the file list
+
+Subclass `StatusPanel` or replace `self.files` before the animation begins:
+
+```python
+class CustomStatusPanel(StatusPanel):
+    def _simulate_encryption(self):
+        self.files = [
+            "D:/Projects/demo_file_1.txt",
+            "D:/Projects/demo_file_2.txt",
+            "D:/Backups/archive.zip",
+        ]
+        self.encrypted_count = 0
+        self.update_status()
+```
+
+## Animation timing
+
+Each step waits a random number of milliseconds before the next update:
+
+```python
+self.after(random.randint(500, 2000), self.update_status)
+```
+
+To make the animation faster or slower, subclass and override `update_status` with a different range:
+
+```python
+# Fast animation — 100 to 300ms between steps
+self.after(random.randint(100, 300), self.update_status)
+```
+
+## Usage example
+
+```python src/main.py
+from components.status_panel import StatusPanel
+
+self.status = StatusPanel(content_frame)
+self.status.grid(row=2, column=0, pady=20)
+```
+
+<Tip>
+  Because `StatusPanel` uses `self.after()` (Tkinter's main-thread scheduler), it is safe to update UI labels inside `update_status` without additional locking.
+</Tip>

@@ -1,0 +1,128 @@
+---
+title: "Theming, color customization, and fonts in MalwareUI"
+description: "Learn how to change background colors, text colors, progress bar colors, and fonts across all three MalwareUI components to match your demo scenario."
+---
+
+MalwareUI uses CustomTkinter's color system throughout. All colors are controlled by four widget parameters: `fg_color` sets background fills, `text_color` sets label foregrounds, `progress_color` sets the filled portion of progress bars, and `border_color` sets frame outlines. Changing any of these values in the relevant component file is all that is needed to re-theme the UI.
+
+## Window and frame colors
+
+The main window background is set in `RansomwareUI.__init__` via `configure`:
+
+```python
+self.configure(fg_color="#1a1a1a")
+```
+
+The content frame that wraps the three components uses a slightly lighter shade:
+
+```python
+content_frame = ctk.CTkFrame(self, fg_color="#2d2d2d")
+```
+
+Replace either hex value to change the overall background. For example, to use a deep navy theme:
+
+```python
+self.configure(fg_color="#0a0e1a")
+content_frame = ctk.CTkFrame(self, fg_color="#12172b")
+```
+
+## Timer colors
+
+`CountdownTimer` (`src/components/timer.py`) exposes three color points:
+
+- The "TIME REMAINING" label `text_color`
+- The large time display `text_color`
+- The progress bar's `progress_color` (filled portion) and `fg_color` (track)
+
+```python
+self.timer_label = ctk.CTkLabel(
+    self, text="TIME REMAINING",
+    font=("Terminal", 20),
+    text_color="#ff3333"
+)
+self.time_display = ctk.CTkLabel(
+    self, text="00:00:00",
+    font=("Digital-7", 48, "bold"),
+    text_color="#ff0000"
+)
+self.progress = ctk.CTkProgressBar(
+    self, width=300, height=15,
+    progress_color="#ff0000",
+    fg_color="#333333"
+)
+```
+
+To switch to an amber palette, update those three color values:
+
+```python
+text_color="#ffaa00"   # labels
+progress_color="#ffaa00"
+fg_color="#3a2e00"     # track
+```
+
+## Message display colors
+
+`MessageDisplay` (`src/components/message_display.py`) has two color targets: the main message label and the warning frame.
+
+```python
+self.message_label = ctk.CTkLabel(
+    self, text=message_text,
+    font=("Consolas", 14),
+    text_color="#ff3333",
+    justify="left"
+)
+warning_frame = ctk.CTkFrame(
+    self,
+    fg_color="#3a0000",
+    border_color="#ff0000",
+    border_width=2
+)
+```
+
+Change `text_color` on `message_label` to alter the body copy color. Change `fg_color` and `border_color` on `warning_frame` to restyle the highlighted warning box independently.
+
+## Status panel colors
+
+`StatusPanel` (`src/components/status_panel.py`) uses a green accent color to signal that encryption is complete. The progress bar and completion label both carry this green value:
+
+```python
+self.current_file.configure(text="Encryption Complete", text_color="#00ff00")
+```
+
+The progress bar's `progress_color` is set during widget creation in `_create_widgets`. Update it alongside `text_color` to keep the two in sync:
+
+```python
+self.progress = ctk.CTkProgressBar(
+    status_frame, width=200, height=10,
+    progress_color="#00ff00",   # change here
+    fg_color="#333333"
+)
+```
+
+## Fonts
+
+MalwareUI uses three font families across its components:
+
+| Font | Used in | Notes |
+|------|---------|-------|
+| `"Terminal"` | Header label, timer label, warning label | A common monospace terminal font; usually available on Windows |
+| `"Digital-7"` | Time display in `CountdownTimer` | A custom seven-segment display font — not installed by default |
+| `"Consolas"` | Message body, footer BTC address label | Bundled with Windows; available on most systems |
+
+Fonts are specified as tuples: `(family, size)` or `(family, size, weight)`:
+
+```python
+font=("Terminal", 32, "bold")   # family, size, weight
+font=("Digital-7", 48, "bold")
+font=("Consolas", 14)
+```
+
+If "Digital-7" is not installed, CustomTkinter falls back to the system default font. Install it by placing the `.ttf` file in your system fonts directory, or substitute any monospace font:
+
+```python
+font=("Courier New", 48, "bold")   # safe cross-platform fallback
+```
+
+<Tip>
+Call `ctk.set_appearance_mode("dark")` before instantiating `RansomwareUI` to ensure CustomTkinter's built-in dark theme is active. You can switch to `ctk.set_appearance_mode("light")` during development to make widget boundaries easier to see — just remember to switch back before running the demo.
+</Tip>

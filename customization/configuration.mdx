@@ -1,0 +1,124 @@
+---
+title: "Configuring MalwareUI timer, file list, and messages"
+description: "Configure MalwareUI's countdown duration, simulated file list, message text, and window dimensions to tailor the ransomware demo to your needs."
+---
+
+MalwareUI exposes several configuration points that let you tailor the demo without touching unrelated code. Window size, timer duration, the simulated file list, animation pacing, and ransom message text can all be adjusted in the relevant Python source file. Each section below shows the exact line to change and the effect it produces.
+
+<Note>
+All configuration is done directly in Python source code. MalwareUI has no external configuration file, settings JSON, or environment variables.
+</Note>
+
+## Window dimensions
+
+The window size is set by a single `geometry` call in `RansomwareUI.__init__` (`src/main.py`):
+
+```python
+self.geometry("800x600")
+```
+
+The format is `"WIDTHxHEIGHT"` in pixels. Change both values to resize the window:
+
+```python
+self.geometry("1024x768")   # larger display
+self.geometry("640x480")    # compact display
+```
+
+This call is the only place window dimensions are defined; no other component hard-codes the window size.
+
+## Countdown duration
+
+The timer is instantiated in `RansomwareUI._setup_ui` with an `hours` argument:
+
+```python
+self.timer = CountdownTimer(content_frame, hours=2)
+```
+
+Pass any positive number to change the countdown. The value is multiplied by 3600 inside `CountdownTimer.__init__` to obtain seconds:
+
+```python
+self.remaining_seconds = hours * 3600
+```
+
+<Tip>
+Use a fractional value to set a duration in minutes. For example, `hours=0.5` produces a 30-minute countdown, and `hours=0.0833` approximates 5 minutes.
+</Tip>
+
+## Simulated file list
+
+`StatusPanel._simulate_encryption` (`src/components/status_panel.py`) defines the list of paths that appear to be encrypted one by one:
+
+```python
+self.files = [
+    "C:/Users/Documents/important.pdf",
+    "C:/Users/Pictures/family.jpg",
+    "C:/Users/Desktop/work_report.docx",
+    "C:/Users/Downloads/backup.zip",
+    "C:/Program Files/data.db"
+]
+```
+
+Replace this list with any paths relevant to your demo scenario. The number of entries is not fixed — add or remove items freely:
+
+```python
+self.files = [
+    "D:/Projects/source_code.zip",
+    "D:/Accounts/financials_2025.xlsx",
+    "D:/Backup/system_image.iso",
+]
+```
+
+The progress bar in `StatusPanel` advances proportionally based on `len(self.files)`, so it always fills completely regardless of how many paths you include.
+
+## Animation timing
+
+After each file is "encrypted", `StatusPanel.update_status` schedules the next update using a random delay:
+
+```python
+self.after(random.randint(500, 2000), self.update_status)
+```
+
+Both arguments to `random.randint` are milliseconds. The first is the minimum delay and the second is the maximum. Decrease both values to speed up the animation, or increase them to slow it down:
+
+```python
+self.after(random.randint(100, 500), self.update_status)    # fast
+self.after(random.randint(2000, 5000), self.update_status)  # slow
+```
+
+To remove randomness and use a fixed interval, replace `random.randint(min, max)` with a constant:
+
+```python
+self.after(1000, self.update_status)   # exactly 1 second between files
+```
+
+## Message text
+
+The ransom message is defined as a single string in `MessageDisplay._create_widgets` (`src/components/message_display.py`):
+
+```python
+message_text = (
+    "YOUR FILES HAVE BEEN ENCRYPTED!\n\n"
+    "Your important documents, photos, videos and other files\n"
+    "have been encrypted with military-grade encryption.\n\n"
+    "To decrypt your files, follow these steps:\n"
+    "1. Send 0.5 BTC to the address below\n"
+    "2. Send proof of payment to decrypt@example.com\n"
+    "3. Wait for decryption key\n\n"
+    "WARNING: DO NOT attempt to decrypt files yourself.\n"
+    "This will result in permanent data loss!"
+)
+```
+
+Edit this string directly to change the displayed message. You can also update the label after instantiation by calling `configure` on `message_label`:
+
+```python
+app = RansomwareUI()
+app.message.message_label.configure(
+    text="YOUR FILES HAVE BEEN ENCRYPTED!\n\nCustom message for your demo scenario."
+)
+app.mainloop()
+```
+
+<Warning>
+`message_label` is set as an instance attribute inside `_create_widgets`, so it is accessible from outside the class. However, calling `configure` after the window is already rendering will cause the label to reflow — call it before `app.mainloop()` to avoid a visible jump.
+</Warning>

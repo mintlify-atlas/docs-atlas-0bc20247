@@ -1,0 +1,56 @@
+---
+title: "Components overview"
+description: "MalwareUI's three CTkFrame components — CountdownTimer, MessageDisplay, and StatusPanel — and how they assemble inside the main RansomwareUI window."
+---
+
+MalwareUI is built from three independent CustomTkinter components, each extending `ctk.CTkFrame`. This page summarizes how they fit together inside the main `RansomwareUI` window and links to full documentation for each component.
+
+<Warning>
+  MalwareUI is a demonstration UI only. No actual encryption or system modifications occur. All components simulate visual effects for educational and UI research purposes.
+</Warning>
+
+## Architecture
+
+The `RansomwareUI` class (in `src/main.py`) configures an 800×600 window using a three-row grid layout, then places each component inside a shared `content_frame`:
+
+```python src/main.py
+class RansomwareUI(ctk.CTk):
+    def _setup_ui(self):
+        # Row 0: header label
+        # Row 1: content_frame containing the three components
+        # Row 2: footer label
+
+        content_frame = ctk.CTkFrame(self, fg_color="#2d2d2d")
+        content_frame.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="nsew")
+
+        self.timer = CountdownTimer(content_frame, hours=2)
+        self.timer.grid(row=0, column=0, pady=20)
+
+        self.message = MessageDisplay(content_frame)
+        self.message.grid(row=1, column=0, pady=20)
+
+        self.status = StatusPanel(content_frame)
+        self.status.grid(row=2, column=0, pady=20)
+```
+
+## Component summary
+
+| Component | Module | Constructor | Purpose |
+|---|---|---|---|
+| `CountdownTimer` | `components/timer.py` | `CountdownTimer(master, hours=2)` | Animated countdown clock with red progress bar, runs on a background daemon thread |
+| `MessageDisplay` | `components/message_display.py` | `MessageDisplay(master)` | Static multi-line message with a red-bordered warning box |
+| `StatusPanel` | `components/status_panel.py` | `StatusPanel(master)` | Simulated file encryption progress with animated green progress bar |
+
+All three components are `ctk.CTkFrame` subclasses and can be embedded in any CustomTkinter layout using standard Tkinter geometry managers (`pack`, `grid`, or `place`).
+
+<CardGroup cols={3}>
+  <Card title="CountdownTimer" icon="clock" href="/components/countdown-timer">
+    Animated countdown clock with a red progress bar, driven by a background thread.
+  </Card>
+  <Card title="MessageDisplay" icon="message" href="/components/message-display">
+    Static message panel with customizable text and a red-bordered warning box.
+  </Card>
+  <Card title="StatusPanel" icon="shield" href="/components/status-panel">
+    Animated file encryption progress indicator with a green progress bar.
+  </Card>
+</CardGroup>

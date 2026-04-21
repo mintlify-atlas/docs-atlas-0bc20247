@@ -1,0 +1,74 @@
+---
+title: "MalwareUI: ransomware UI demo"
+description: "MalwareUI is a dark-themed Python desktop app that simulates ransomware visuals using CustomTkinter — for education and security demos."
+---
+
+MalwareUI is an open-source Python desktop application that replicates the visual style of ransomware interfaces. This page introduces the project, explains its architecture, and points you to the resources you need to install, run, and customize it.
+
+<Warning>
+  MalwareUI is a demonstration tool only. It performs no encryption, makes no system changes, and transmits no data. It is intended solely for education, security awareness training, and UI prototyping.
+</Warning>
+
+## What MalwareUI does
+
+MalwareUI renders an 800×600 dark-themed window that mimics the visual language of ransomware screens: a red "SYSTEM COMPROMISED" header, a countdown timer, a scrollable message panel, and a status panel. The Bitcoin address shown in the footer is the well-known genesis block address and is used for illustrative purposes only.
+
+The application is built on [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter), a modern theming layer on top of Tkinter, and requires no web server, no network access, and no elevated privileges to run.
+
+## Architecture
+
+The entry point is `src/main.py`, which defines the `RansomwareUI` class. This class extends `ctk.CTk` and composes three child components inside a content frame:
+
+| Component | Class | Responsibility |
+|---|---|---|
+| Countdown timer | `CountdownTimer` | Displays a ticking 2-hour countdown |
+| Message display | `MessageDisplay` | Renders the ransom message text |
+| Status panel | `StatusPanel` | Shows simulated encryption status indicators |
+
+The window uses a three-row grid: a header label (row 0), the content frame containing all three components (row 1), and a footer label showing the BTC address (row 2).
+
+## Explore the docs
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Install dependencies and run MalwareUI in under five minutes.
+  </Card>
+  <Card title="Components overview" icon="puzzle-piece" href="/components/overview">
+    Explore CountdownTimer, MessageDisplay, and StatusPanel in detail.
+  </Card>
+  <Card title="Theming" icon="palette" href="/customization/theming">
+    Change colors, fonts, and the window's dark appearance.
+  </Card>
+  <Card title="Configuration" icon="sliders" href="/customization/configuration">
+    Adjust the countdown duration, message text, and status entries.
+  </Card>
+</CardGroup>
+
+## Project structure
+
+```text
+malwareui/
+├── src/
+│   ├── main.py                  # RansomwareUI entry point
+│   └── components/
+│       ├── timer.py             # CountdownTimer component
+│       ├── message_display.py   # MessageDisplay component
+│       └── status_panel.py      # StatusPanel component
+├── requirements.txt
+└── README.md
+```
+
+## Dependencies
+
+MalwareUI has two direct dependencies, both pinned for reproducibility:
+
+| Package | Version | Purpose |
+|---|---|---|
+| `customtkinter` | 5.2.1 | Modern dark-themed Tkinter widgets |
+| `pillow` | 10.2.0 | Image processing used internally by CustomTkinter |
+
+Install them with:
+
+```bash
+pip install -r requirements.txt
+```

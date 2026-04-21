@@ -1,0 +1,77 @@
+---
+title: "MessageDisplay component"
+description: "MessageDisplay renders a static multi-line message and a red-bordered warning box. Only the message_label is exposed as an instance attribute."
+---
+
+`MessageDisplay` is a static CustomTkinter widget that renders a multi-line message label and a red-bordered warning box inside a dark frame. Both the message text and the warning text can be updated after instantiation via CustomTkinter's `.configure()` method.
+
+## Constructor
+
+```python
+MessageDisplay(master)
+```
+
+<ParamField path="master" type="ctk.CTkFrame | ctk.CTk" required>
+  The parent widget in which this frame is placed. Passed directly to `ctk.CTkFrame.__init__`.
+</ParamField>
+
+## Internal widgets
+
+| Attribute | Type | Description |
+|---|---|---|
+| `message_label` | `ctk.CTkLabel` | Instance attribute. The main multi-line text block in red (`#ff3333`) using Consolas 14pt |
+| `warning_frame` *(local)* | `ctk.CTkFrame` | Local variable inside `_create_widgets`. A dark red (`#3a0000`) frame with a red border (2px) — not accessible as an instance attribute |
+| `warning_label` *(local)* | `ctk.CTkLabel` | Local variable inside `_create_widgets`. Displays the two-line escalation warning in red — not accessible as an instance attribute |
+
+Only `message_label` is stored as `self.message_label` and is accessible after instantiation. The warning frame and its label are created as local variables and cannot be updated post-instantiation without subclassing.
+
+## Default message text
+
+The component ships with the following placeholder message defined in `_create_widgets`:
+
+```python src/components/message_display.py
+message_text = (
+    "YOUR FILES HAVE BEEN ENCRYPTED!\n\n"
+    "Your important documents, photos, videos and other files\n"
+    "have been encrypted with military-grade encryption.\n\n"
+    "To decrypt your files, follow these steps:\n"
+    "1. Send 0.5 BTC to the address below\n"
+    "2. Send proof of payment to decrypt@example.com\n"
+    "3. Wait for decryption key\n\n"
+    "WARNING: DO NOT attempt to decrypt files yourself.\n"
+    "This will result in permanent data loss!"
+)
+```
+
+<Note>
+  This is demo placeholder text. It is not connected to any real system and no files are encrypted.
+</Note>
+
+## Customizing the message
+
+Update the message text after instantiation using `.configure()`:
+
+```python
+self.message = MessageDisplay(content_frame)
+
+# Update the main message text
+self.message.message_label.configure(text="Your custom demo message here.")
+```
+
+You can also change the text color, font size, or justification:
+
+```python
+self.message.message_label.configure(
+    text_color="#ffaa00",
+    font=("Consolas", 16)
+)
+```
+
+## Usage example
+
+```python src/main.py
+from components.message_display import MessageDisplay
+
+self.message = MessageDisplay(content_frame)
+self.message.grid(row=1, column=0, pady=20)
+```

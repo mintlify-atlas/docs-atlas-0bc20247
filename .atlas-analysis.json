@@ -1,0 +1,54 @@
+{
+  "projectType": "frontend",
+  "projectName": "MalwareUI",
+  "projectDescription": "A dark-themed ransomware UI demonstration built with CustomTkinter, featuring animated countdown timers, threatening message displays, and simulated encryption status indicators — for educational and demonstration purposes only.",
+  "theme": "willow",
+  "primaryColor": "#ff0000",
+  "lightColor": "#ff3333",
+  "darkColor": "#1a1a1a",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart"]
+          },
+          {
+            "group": "Components",
+            "pages": [
+              "components/overview",
+              "components/countdown-timer",
+              "components/message-display",
+              "components/status-panel"
+            ]
+          },
+          {
+            "group": "Customization",
+            "pages": [
+              "customization/theming",
+              "customization/configuration"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Dark-themed CustomTkinter UI built on top of standard Tkinter",
+    "Animated countdown timer with real-time progress bar",
+    "Threatening message display panel with warning box",
+    "Simulated file encryption status panel with animated progress",
+    "Modular component architecture (CountdownTimer, MessageDisplay, StatusPanel)",
+    "Thread-safe timer updates using Python threading"
+  ],
+  "publicApiSurface": [
+    "RansomwareUI — main application window class (src/main.py)",
+    "CountdownTimer(master, hours=2) — countdown timer component (src/components/timer.py)",
+    "MessageDisplay(master) — threatening message display component (src/components/message_display.py)",
+    "StatusPanel(master) — simulated encryption status panel (src/components/status_panel.py)",
+    "CountdownTimer.stop() — stops the countdown timer thread",
+    "StatusPanel.update_status() — advances the simulated encryption progress"
+  ]
+}

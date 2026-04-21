@@ -1,0 +1,71 @@
+---
+title: "CountdownTimer component"
+description: "CountdownTimer displays a live HH:MM:SS countdown with a red progress bar. Starts automatically on init and runs on a background daemon thread."
+---
+
+`CountdownTimer` is a self-contained CustomTkinter widget that displays an animated HH:MM:SS countdown clock alongside a red progress bar. It starts automatically on instantiation and runs on a background daemon thread so it does not block the main UI loop.
+
+## Constructor
+
+```python
+CountdownTimer(master, hours=2)
+```
+
+<ParamField path="master" type="ctk.CTkFrame | ctk.CTk" required>
+  The parent widget in which this frame is placed. Passed directly to `ctk.CTkFrame.__init__`.
+</ParamField>
+
+<ParamField path="hours" type="float" default="2">
+  Duration of the countdown in hours. The value is multiplied by 3600 to get total seconds.
+  For sub-hour durations, use fractional values (e.g., `hours=0.5` for 30 minutes).
+</ParamField>
+
+## Public methods
+
+### `stop()`
+
+Stops the background countdown thread by setting `self.active = False`. The thread will exit at the next iteration of its loop. Call this before destroying the widget if you need to clean up manually.
+
+```python
+timer = CountdownTimer(parent, hours=1)
+# ... later
+timer.stop()
+```
+
+## Internal widgets
+
+| Attribute | Type | Description |
+|---|---|---|
+| `timer_label` | `ctk.CTkLabel` | Displays "TIME REMAINING" in red at the top of the frame |
+| `time_display` | `ctk.CTkLabel` | Large HH:MM:SS display, updated every second |
+| `progress` | `ctk.CTkProgressBar` | Red progress bar starting at 1.0 and decreasing proportionally |
+
+## Usage example
+
+```python src/main.py
+from components.timer import CountdownTimer
+
+# Embed in a parent frame using grid
+self.timer = CountdownTimer(content_frame, hours=2)
+self.timer.grid(row=0, column=0, pady=20)
+```
+
+## Countdown expiry
+
+When `remaining_seconds` reaches zero, the component updates the display to reflect the expired state:
+
+```python
+if self.remaining_seconds <= 0:
+    self.time_display.configure(text="00:00:00", text_color="#ffffff")
+    self.timer_label.configure(text="TIME'S UP", text_color="#ffffff")
+```
+
+The label text changes from "TIME REMAINING" to "TIME'S UP" and both turn white.
+
+## Thread safety
+
+The timer runs in a `threading.Thread` with `daemon=True`, meaning it automatically stops when the main process exits. The thread calls `.configure()` on Tkinter labels directly — this is generally safe in CustomTkinter but should be noted if integrating with other threading patterns.
+
+<Tip>
+  To use a duration shorter than one hour, pass a fractional value: `CountdownTimer(parent, hours=0.25)` starts a 15-minute countdown.
+</Tip>
